@@ -2,114 +2,73 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["seatly"] 
+}
+
+model Product {
+  productId   Int           @id @default(autoincrement())
+  name        String
+  category    Category
+  price       Int?
+  image       String?
+  stock       Int
+  reviews     Review[]
+  transaction Transaction[]
+}
+
+model Review {
+  reviewId  Int     @id @default(autoincrement())
+  name      String
+  rating    Int
+  text      String
+  product   Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  productId Int
+}
+
+model User {
+  id            Int     @id @default(autoincrement())
+  email         String  @unique
+  password      String
+  role          Role    @default(USER)
+  refresh_token String?
+
+  transaction Transaction[]
+}
+
+model Transaction {
+  transactionId Int      @id @default(autoincrement())
+  productId     Int
+  userId        Int
+  traansactionStatus        TransactionStatus
+  quantity      Int
+  createdAt     DateTime @default(now())
+  total_price   Float
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [productId])
+}
+
+enum TransactionStatus {
+  CART
+  PENDING
+  PAID
 }
 
 
-
-model Users {
-  user_id        Int       @id @default(autoincrement())
-  username       String    @unique
-  email          String
-  password       String
-  user_role      String    @default("customer") @db.VarChar(20)
-  created_at     DateTime  @default(now())
-  events         Events[]
-  bookings       Booking[]
-  reviews        Reviews[]
-  eventReferrals EventReferral[]
-
-  @@map("users")
-  @@schema("seatly")  // Add this line to define schema
+enum Role {
+  ADMIN
+  USER
 }
 
-model Events {
-  event_id        Int       @id @default(autoincrement())
-  user_id         Int
-  event_name      String    @db.VarChar(100)
-  event_type      String    @db.VarChar(10)
-  ticket_type     String    @db.VarChar(25)
-  event_price     Decimal   @db.Decimal(10, 2)
-  event_location  String    @db.VarChar(100)
-  event_category  String    @db.VarChar(20)
-  event_description String?
-  available_seats Int
-  created_at      DateTime  @default(now())
-  event_start_date DateTime
-  event_end_date   DateTime
-  user            Users     @relation(fields: [user_id], references: [user_id])
-  bookings        Booking[]
-  reviews         Reviews[]
-  eventReferrals  EventReferral[]
-
-  @@map("events")
-  @@schema("seatly")  // Add this line to define schema
-}
-
-model Booking {
-  booking_id      Int       @id @default(autoincrement())
-  user_id         Int
-  event_id        Int
-  booking_date    DateTime  @default(now())
-  total_price     Decimal   @db.Decimal(10, 2)
-  payment_status  String    @db.VarChar(20)
-  payment_id      Int?
-  user            Users     @relation(fields: [user_id], references: [user_id])
-  event           Events    @relation(fields: [event_id], references: [event_id])
-  payment         Payment?
-
-  @@map("booking")
-  @@schema("seatly")  // Add this line to define schema
-}
-
-model Payment {
-  payment_id      Int       @id @default(autoincrement())
-  booking_id      Int        @unique
-  payment_amount  Decimal   @db.Decimal(10, 2)
-  payment_method  String    @db.VarChar(10)
-  payment_status  String    @db.VarChar(15)
-  payment_date    DateTime  @default(now())
-  booking         Booking   @relation(fields: [booking_id], references: [booking_id])
-
-  @@map("payment")
-  @@schema("seatly")  // Add this line to define schema
-}
-
-model Reviews {
-  review_id       Int       @id @default(autoincrement())
-  user_id         Int
-  event_id        Int
-  rating          Decimal   @db.Decimal(2, 1) 
-  experience      String?
-  suggestions     String?
-  created_at      DateTime  @default(now())
-  user            Users     @relation(fields: [user_id], references: [user_id])
-  event           Events    @relation(fields: [event_id], references: [event_id])
-
-  @@map("reviews")
-  @@schema("seatly")  // Add this line to define schema
-}
-
-model EventReferral {
-  event_referral_id Int     @id @default(autoincrement())
-  user_id           Int
-  event_id          Int
-  referral_code     String  @db.VarChar(10)
-  discount_percentage Decimal @db.Decimal(5, 2) 
-  max_uses          Int     @default(25)
-  start_date        DateTime
-  end_date          DateTime
-  created_at        DateTime @default(now())
-  user              Users    @relation(fields: [user_id], references: [user_id])
-  event             Events   @relation(fields: [event_id], references: [event_id])
-
-  @@map("event_referral")
-  @@schema("seatly")  // Add this line to define schema
+enum Category {
+  BONEKA
+  COOKIES
+  PAKET_HADIAH
+  MAINAN
 }

@@ -1,115 +1,106 @@
-import Image from "next/image";
-import localFont from "next/font/local";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+interface CategoryCardProps {
+  href: string;
+  imgSrc: string;
+  title: string;
+}
 
-export default function Home() {
+export default function HomePage() {
+
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/boneka");
+  };
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-cream flex flex-col">
+      <Navbar />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <header className="relative w-full h-[60vh] md:h-[80vh]">
+        <img
+          src="https://i.pinimg.com/736x/20/c8/23/20c8232afdfa82792c358b2b8a16c61a.jpg"
+          alt="Header Image"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center text-center px-4">
+          <h1 className="text-white text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+            Selamat Datang di Zuffa Store
+          </h1>
+          <p className="text-white text-lg md:text-2xl max-w-xl mb-6">
+            Temukan boneka dan kue lezat untuk orang tersayang
+          </p>
+          <button
+            onClick={handleClick}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+            Jelajahi Sekarang
+          </button>
         </div>
+      </header>
+
+      {/* Category Section */}
+      <main className="bg-cream flex-grow px-6 py-10">
+        <section className="max-w-7xl mx-auto px-4 py-10">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">Pilihan Kategori</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Temukan produk terbaik untuk semua kebutuhan Anda
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
+            <CategoryCard
+              href="/productboneka"
+              imgSrc="https://i.pinimg.com/736x/d5/78/a8/d578a89d005410a5b2725d87b986e681.jpg"
+              title="Boneka Lucu"
+            />
+            <CategoryCard
+              href="/productCookies"
+              imgSrc="https://i.pinimg.com/736x/f5/56/c2/f556c2bbc7872c91811de95e11a5ec67.jpg"
+              title="Kue Lezat"
+            />
+            <CategoryCard
+              href="/productMainan"
+              imgSrc="https://i.pinimg.com/736x/13/a0/6c/13a06c70e7766453aa2c42bae49edd68.jpg"
+              title="Mainan"
+            />
+            <CategoryCard
+              href="/productPaketan"
+              imgSrc="https://i.pinimg.com/736x/c5/af/1f/c5af1faf7c62184e775b9daa69ca0d11.jpg"
+              title="Paket Hadiah"
+            />
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
     </div>
+  );
+}
+
+// Reusable Category Card Component
+function CategoryCard({ href, imgSrc, title }: CategoryCardProps) {
+  return (
+    <Link
+      href={href}
+      className="group relative w-full max-w-xs rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+    >
+      <div className="aspect-square overflow-hidden">
+        <img
+          src={imgSrc}
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+      </div>
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+        <h3 className="text-white text-xl font-bold">{title}</h3>
+        <p className="text-white/80 text-sm mt-1">Lihat koleksi</p>
+      </div>
+    </Link>
   );
 }
