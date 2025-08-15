@@ -15,7 +15,7 @@ const config: Config = {
         choco: '#5C4033',
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
+        sans: ['Outfit', 'sans-serif'],
       },
     },
   },
