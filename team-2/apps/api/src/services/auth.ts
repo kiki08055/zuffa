@@ -18,13 +18,13 @@ export class AuthService {
         const accessToken = jwt.sign(
             { id: user.id, role: user.role }, // ✅ ubah userId jadi id
             JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '1d' }
         );
 
         const refreshToken = jwt.sign(
             { id: user.id }, // ✅ ubah userId jadi id
             REFRESH_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
 
 
@@ -55,13 +55,13 @@ export class AuthService {
         const accessToken = jwt.sign(
             { id: user.id, role: Role.ADMIN }, // ✅ tambahkan id
             JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '1d' }
         );
 
         const refreshToken = jwt.sign(
             { id: user.id }, // ✅ tambahkan id juga
             REFRESH_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
 
         await prisma.user.update({
@@ -92,9 +92,9 @@ export class AuthService {
             }
 
             const newAccessToken = jwt.sign(
-                { userId: user.id, role: user.role },
+                { id: user.id, role: user.role },
                 JWT_SECRET,
-                { expiresIn: '15m' }
+                { expiresIn: '1d' }
             );
 
             return { accessToken: newAccessToken };
@@ -121,13 +121,13 @@ export class AuthService {
         const accessToken = jwt.sign(
             { id: user.id, role: user.role }, // ✅ sisipkan id
             JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '1d' }
         );
 
         const refreshToken = jwt.sign(
             { id: user.id }, // ✅ sisipkan id juga
             REFRESH_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
 
         // update refresh token

@@ -13,6 +13,6 @@ router.get("/profile", authMiddleware.authenticateJwt, UserController.getProfile
 router.post("/reviews",UserController.createReview.bind(UserController));
 
 router.post("/transactions", authMiddleware.authenticateJwt,UserController.createTransactions.bind(UserController));
-
+router.get("/transactions/user/:userId", UserController.getTransactionsByUserId.bind(UserController));
 
 export default router;

@@ -107,35 +107,49 @@ export class UserService {
     });
   }
 
-async createTransactions(userId: number, productId: number, quantity: number) {
-  // Cek user
-  const user = await this.prisma.user.findUnique({
-    where: { id: userId },
+  async createTransactions(userId: number, productId: number, quantity: number) {
+    // Cek user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new Error("User not found");
+
+    // Cek produk
+    const product = await this.prisma.product.findUnique({
+      where: { productId },
+    });
+    if (!product) throw new Error("Product not found");
+    if (product.price === null) throw new Error("Product price is missing");
+    if (product.stock < quantity) throw new Error("Stock is not sufficient");
+
+    const totalPrice = product.price * quantity;
+
+    // Buat transaksi
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        userId,
+        productId,
+        quantity,
+        total_price: totalPrice,
+        traansactionStatus: "PENDING", // enum Status
+      },
+    });
+
+    return transaction;
+  }
+
+async getTransactionsByUserId(userId: number) {
+  if (!userId || isNaN(userId)) {
+    throw new Error("userId tidak valid atau kosong");
+  }
+
+  console.log("📌 getTransactionsByUserId menerima userId:", userId);
+
+  return this.prisma.transaction.findMany({
+    where: { userId: userId },
+    include: { product: true },
   });
-  if (!user) throw new Error("User not found");
-
-  // Cek produk
-  const product = await this.prisma.product.findUnique({
-    where: { productId },
-  });
-  if (!product) throw new Error("Product not found");
-  if (product.price === null) throw new Error("Product price is missing");
-  if (product.stock < quantity) throw new Error("Stock is not sufficient");
-
-  const totalPrice = product.price * quantity;
-
-  // Buat transaksi
-  const transaction = await this.prisma.transaction.create({
-    data: {
-      userId,
-      productId,
-      quantity,
-      total_price: totalPrice,
-      traansactionStatus: "PENDING", // enum Status
-    },
-  });
-
-  return transaction;
 }
+
 
 }

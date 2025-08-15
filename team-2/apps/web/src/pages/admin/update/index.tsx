@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { Product } from '@/utils/interface';
+import Cookies from 'js-cookie';
 
 export default function UpdateProduct() {
   const router = useRouter();
@@ -22,6 +23,12 @@ export default function UpdateProduct() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+
+    const Role = Cookies.get("userRole");
+    if (Role !== 'ADMIN') {
+      router.push('/home')
+    }
+
     if (id !== null) {
       axios
         .get(`http://localhost:8000/api/admin/product/${id}`)

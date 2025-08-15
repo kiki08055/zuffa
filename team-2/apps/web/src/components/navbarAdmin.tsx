@@ -8,11 +8,11 @@ const NavbarAdmin = () => {
 
   const handleLogout = () => {
     console.log('Logout clicked');
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   const handleTransactionClick = () => {
-    router.push('/admin/transactions');
+    router.push('/admin/Transactions');
   };
 
   const handleBonekaClick = () => {

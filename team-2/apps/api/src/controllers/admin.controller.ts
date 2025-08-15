@@ -179,22 +179,5 @@ export class adminController {
     }
   }
 
-
-  async getTransactionById(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const transaction = await this.adminService.getTransactionById(id);
-    if (transaction) {
-      res.status(200).send({
-        message: `Transaction ${id} ditemukan`,
-        data: transaction,
-        status: res.statusCode,
-      })
-    } else {
-      res.status(404).send({
-        message: `Transaction ${id} tidak ditemukan`,
-      });
-    }
-  }
-
 }
 

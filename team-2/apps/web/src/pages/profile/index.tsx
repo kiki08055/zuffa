@@ -19,8 +19,9 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       const token = Cookies.get('accessToken')
 
+      // ⛔ Kalau belum login (ga ada token) → arahkan ke REGISTER dulu
       if (!token) {
-        router.push('/auth/login') // 🔁 ganti ke login
+        router.push('/auth/register')
         return
       }
 
@@ -35,7 +36,7 @@ export default function ProfilePage() {
       } catch (err) {
         setError('Gagal mengambil data profil. Silakan login ulang.')
         Cookies.remove('accessToken')
-        router.push('/auth/login')
+        router.push('/auth/login') // kalau token error → ke login
       }
     }
 
@@ -59,7 +60,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-softblue px-4 py-8">
-      {/* Back Button */}
       <div className="w-full max-w-sm mb-6">
         <button
           onClick={() => router.back()}
@@ -69,7 +69,6 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Profile Card */}
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-sm">
         <h2 className="text-2xl font-semibold mb-6 text-center text-choco">Profil Saya</h2>
         <p className="mb-2 text-choco break-words">Email: {profile.email}</p>

@@ -19,6 +19,5 @@ router.get("/users/:id", AdminController.getUserById.bind(AdminController));
 router.delete("/user/:id", AdminController.deleteUsers.bind(AdminController));
 
 router.get("/transactions", AdminController.getAllTransactions.bind(AdminController));
-router.get("/transactions/:id", AdminController.getTransactionById.bind(AdminController));
 
 export default router;

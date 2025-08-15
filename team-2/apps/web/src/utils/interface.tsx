@@ -13,16 +13,8 @@ export interface Product {
   reviews?: Review[];
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
 export interface Transaction {
-  id: number;
+  transactionId: number;
   userId: number;
   productId: number;
   quantity: number;

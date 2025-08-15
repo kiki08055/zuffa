@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 const FormProduct: React.FC = () => {
   const [newProduct, setNewProduct] = useState({
@@ -26,6 +27,10 @@ const FormProduct: React.FC = () => {
       setFile(e.target.files[0])
     }
   }
+      const Role = Cookies.get("userRole");
+    if(Role !== 'ADMIN') {
+      router.push('/home')
+    }
 
   const uploadToCloudinary = async () => {
     if (!file) return ''

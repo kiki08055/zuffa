@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import { Menu, X, User, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -46,9 +46,6 @@ export default function Navbar() {
           <button onClick={() => setSearchOpen(true)} className="hover:text-choco">
             <Search className="w-6 h-6" />
           </button>
-          <Link href="/cart" className="hover:text-choco">
-            <ShoppingCart className="w-6 h-6" />
-          </Link>
           <Link href="/profile" className="hover:text-choco">
             <User className="w-6 h-6" />
           </Link>
@@ -82,10 +79,6 @@ export default function Navbar() {
                 <Search className="w-5 h-5" />
                 <span>Search</span>
               </button>
-              <Link href="/cart" className="flex items-center space-x-2" onClick={() => setSidebarOpen(false)}>
-                <ShoppingCart className="w-5 h-5" />
-                <span>Cart</span>
-              </Link>
               <Link href="/profile" className="flex items-center space-x-2" onClick={() => setSidebarOpen(false)}>
                 <User className="w-5 h-5" />
                 <span>Profile</span>

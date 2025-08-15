@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Transaction } from "@/utils/interface";
 import axios from "axios";
 import NavbarAdmin from "@/components/navbarAdmin";
+import Cookies from "js-cookie";
 
 export default function ViewTransaction() {
   const router = useRouter();
@@ -12,6 +13,10 @@ export default function ViewTransaction() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const Role = Cookies.get("userRole");
+    if (Role !== 'ADMIN') {
+      router.push('/home')
+    }
     const fetchTransactions = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/admin/transactions');
@@ -50,7 +55,7 @@ export default function ViewTransaction() {
               </thead>
               <tbody>
                 {transactionData.map((transaction, index) => (
-                  <tr key={transaction.id} className="border-t">
+                  <tr key={transaction.transactionId} className="border-t">
                     <td className="py-3 px-6">{index + 1}</td>
                     <td className="py-3 px-6">{transaction.user?.email || 'Unknown'}</td>
                     <td className="py-3 px-6">{transaction.product?.name || 'Unknown'}</td>

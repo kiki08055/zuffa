@@ -83,11 +83,4 @@ export class AdminService {
     });
   }
 
-
-  async getTransactionById(transactionId: number) {
-    return this.prisma.transaction.findUnique({
-      where: { transactionId }
-    })
-  }
-
 }

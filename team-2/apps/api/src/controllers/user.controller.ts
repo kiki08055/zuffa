@@ -106,7 +106,7 @@ export class userController {
   async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const userId = (req as any).user?.userId;
+      const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).send({ message: "Unauthorized" });
         return;
@@ -159,5 +159,36 @@ export class userController {
       });
     }
   }
+
+   async getTransactionsByUserId(req: Request, res: Response) {
+  const userIdRaw = req.params.userId;
+
+  if (!userIdRaw || isNaN(Number(userIdRaw))) {
+  res.status(400).json({ message: "Invalid userId" });
+  }
+
+  const userId = Number(userIdRaw);
+
+  try {
+    const transactions = await this.userService.getTransactionsByUserId(userId);
+
+    if (transactions.length > 0) {
+      res.status(200).json({
+        message: `Transaction ${userId} ditemukan`,
+        data: transactions,
+        status: 200,
+      });
+    } else {
+      res.status(404).json({
+        message: `Transaction ${userId} tidak ditemukan`,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
 
 }

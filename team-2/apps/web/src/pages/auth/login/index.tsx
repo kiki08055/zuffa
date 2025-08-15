@@ -11,35 +11,43 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setError('')
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/auth/login', {
-        email,
-        password,
-      })
+  try {
+    const response = await axios.post('http://localhost:8000/api/auth/login', {
+      email,
+      password,
+    })
 
-      const { accessToken, refreshToken, role } = response.data.result
-
-      // Simpan token ke cookies
-      Cookies.set('accessToken', accessToken)
-      Cookies.set('refreshToken', refreshToken)
-      Cookies.set('userRole', role)
-
-      // Arahkan sesuai role
-      if (role === 'ADMIN') {
-        router.push('/admin/publish')
-      } else if (role === 'USER') {
-        router.push('/')
-      } else {
-        setError('Role tidak dikenali')
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login gagal')
+    const result = response.data?.result
+    if (!result || !result.accessToken || !result.refreshToken || !result.role) {
+      throw new Error("Format respons tidak sesuai (missing token atau role)")
     }
+
+    const { accessToken, refreshToken, role } = result
+
+    // Simpan token dan role ke cookies
+    Cookies.set('accessToken', accessToken, { path: '/' })
+    Cookies.set('refreshToken', refreshToken, { path: '/' })
+    Cookies.set('userRole', role, { path: '/' })
+
+    // Arahkan sesuai role
+    if (role === 'ADMIN') {
+      router.push('/admin/boneka')
+    } else if (role === 'USER') {
+      router.push('/')
+    } else {
+      setError('Role tidak dikenali')
+    }
+
+  } catch (err: any) {
+    console.error("Login error:", err)
+    setError(err.response?.data?.message || err.message || 'Login gagal')
   }
+}
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-softblue p-4">

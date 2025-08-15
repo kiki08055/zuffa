@@ -1,75 +1,102 @@
-"use client"
-import { useRouter } from "next/router"
-import Navbar from "@/components/navbar"
-import { useState, useEffect, FormEvent } from "react"
-import axios from "axios"
+"use client";
+import { useRouter } from "next/router";
+import Navbar from "@/components/navbar";
+import { useState, useEffect, FormEvent } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 export default function DetailProductPage() {
-  const router = useRouter()
-  const { id } = router.query
+  const router = useRouter();
+  const { id } = router.query;
 
-  const [loading, setLoading] = useState(true)
-  const [product, setProduct] = useState<any>(null)
-  const [reviews, setReviews] = useState<any[]>([])
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [newReview, setNewReview] = useState({
     name: "",
     rating: 5,
     text: "",
-  })
-  const [errorMsg, setErrorMsg] = useState("")
-  const [successMsg, setSuccessMsg] = useState("")
+  });
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // tambahan untuk transaksi
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [user, setUser] = useState<any>(null);
+  
 
   useEffect(() => {
-    if (!id) return
+    if (!id) return;
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/admin/product/${id}`)
-        setProduct(response.data.data)
+        const response = await axios.get(
+          `http://localhost:8000/api/admin/product/${id}`
+        );
+        setProduct(response.data.data);
         if (response.data.data.reviews) {
-          setReviews(response.data.data.reviews)
+          setReviews(response.data.data.reviews);
         }
       } catch (error) {
-        console.error("Gagal memuat data produk:", error)
+        console.error("Gagal memuat data produk:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProduct()
-  }, [id])
+    const fetchUser = async () => {
+      const token = Cookies.get("accessToken");
+      if (!token) return;
+      try {
+        const res = await axios.get("http://localhost:8000/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(res.data.data);
+      } catch (error) {
+        console.error("Gagal memuat data user:", error);
+      }
+    };
+
+    fetchProduct();
+    fetchUser();
+  }, [id]);
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setErrorMsg("")
-    setSuccessMsg("")
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
 
-    const { name, rating, text } = newReview
+    const { name, rating, text } = newReview;
 
     if (!name || !text || rating < 1 || rating > 5) {
-      setErrorMsg("Mohon isi semua field dengan benar.")
-      return
+      setErrorMsg("Mohon isi semua field dengan benar.");
+      return;
     }
 
     const containsToxicWords = (text: string) => {
-      const toxicWords = ["bodoh", "goblok", "jelek"]
-      return toxicWords.some((word) => text.toLowerCase().includes(word))
-    }
+      const toxicWords = ["bodoh", "goblok", "jelek"];
+      return toxicWords.some((word) => text.toLowerCase().includes(word));
+    };
 
     if (containsToxicWords(text)) {
-      setErrorMsg("Komentar mengandung kata tidak pantas.")
-      return
+      setErrorMsg("Komentar mengandung kata tidak pantas.");
+      return;
     }
 
     try {
-      const res = await axios.post("http://localhost:8000/api/user/reviews", {
-        productId: product.productId,
-        name,
-        rating,
-        text,
-      })
+      const res = await axios.post(
+        "http://localhost:8000/api/user/reviews",
+        {
+          productId: product.productId,
+          name,
+          rating,
+          text,
+        }
+      );
 
-      setSuccessMsg("Review berhasil dikirim!")
+      setSuccessMsg("Review berhasil dikirim!");
 
       setReviews((prev) => [
         {
@@ -79,20 +106,56 @@ export default function DetailProductPage() {
           text,
         },
         ...prev,
-      ])
+      ]);
 
-      setNewReview({ name: "", rating: 5, text: "" })
+      setNewReview({ name: "", rating: 5, text: "" });
 
-      const refresh = await axios.get(`http://localhost:8000/api/user/product/${id}`)
-      setProduct(refresh.data.data)
+      const refresh = await axios.get(
+        `http://localhost:8000/api/user/product/${id}`
+      );
+      setProduct(refresh.data.data);
     } catch (error) {
-      console.error("Gagal mengirim review:", error)
-      setErrorMsg("Gagal mengirim review. Coba lagi nanti.")
+      console.error("Gagal mengirim review:", error);
+      setErrorMsg("Gagal mengirim review. Coba lagi nanti.");
     }
-  }
+  };
+
+  const handleBuyNowClick = () => {
+    const token = Cookies.get("accessToken");
+    if (!token) {
+      alert("Kamu harus login terlebih dahulu.");
+      router.push("/auth/login");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmPurchase = async () => {
+    try {
+      await axios.post(
+        "http://localhost:8000/api/user/transactions",
+        {
+          productId: product.productId,
+          quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("accessToken")}`,
+          },
+        }
+      );
+
+      alert("Produk berhasil dibeli!");
+      setIsModalOpen(false);
+      router.push("/");
+    } catch (error) {
+      console.error("Gagal melakukan transaksi:", error);
+      alert("Gagal beli produk, coba lagi nanti.");
+    }
+  };
 
   if (loading) {
-    return <p className="text-center text-brown-600">Memuat Produk...</p>
+    return <p className="text-center text-brown-600">Memuat Produk...</p>;
   }
 
   if (!product) {
@@ -100,11 +163,15 @@ export default function DetailProductPage() {
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center bg-cream">
-          <p className="text-center text-xl text-choco">Produk tidak ditemukan.</p>
+          <p className="text-center text-xl text-choco">
+            Produk tidak ditemukan.
+          </p>
         </div>
       </>
-    )
+    );
   }
+
+  const totalPrice = quantity * product.price;
 
   return (
     <>
@@ -118,22 +185,64 @@ export default function DetailProductPage() {
         </button>
 
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-          <div className="w-full md:w-auto flex justify-center">
+          <div className="w-full md:w-[400px] flex justify-center">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-auto max-w-[400px] object-contain rounded-lg shadow-lg"
+              className="w-full h-auto aspect-[4/3] object-contain rounded-lg"
             />
           </div>
 
           <div className="flex flex-col items-center text-center gap-2">
             <h1 className="text-3xl font-bold text-choco">{product.name}</h1>
-            <p className="text-lg text-choco">Harga: Rp {product.price.toLocaleString()}</p>
-            <button className="mt-2 px-5 py-2 bg-softblue text-choco rounded-lg hover:bg-blue-300 transition">
+            <p className="text-lg text-choco">
+              Harga: Rp {product.price.toLocaleString()}
+            </p>
+            <button
+              onClick={handleBuyNowClick}
+              className="mt-2 px-5 py-2 bg-softblue text-choco rounded-lg hover:bg-blue-300 transition"
+            >
               Beli Sekarang
             </button>
           </div>
         </div>
+
+        {/* Modal Ringkasan Transaksi */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Ringkasan Transaksi</h2>
+              <p><strong>Nama User:</strong> {user?.name || "Guest"}</p>
+              <p><strong>Produk:</strong> {product.name}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <strong>Quantity:</strong>
+                <input
+                  type="number"
+                  min={1}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="border p-1 w-16"
+                />
+              </div>
+              <p className="mt-2"><strong>Total:</strong> Rp {totalPrice.toLocaleString()}</p>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  className="px-4 py-2 border rounded"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  className="px-4 py-2 bg-green-500 text-white rounded"
+                  onClick={handleConfirmPurchase}
+                >
+                  Konfirmasi Pembelian
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Ulasan */}
         <div className="mt-10 bg-white p-6 rounded-lg shadow-md">
@@ -144,13 +253,17 @@ export default function DetailProductPage() {
               {reviews.map((review) => (
                 <li key={review.reviewId} className="border-b pb-4">
                   <p className="font-semibold text-choco">{review.name}</p>
-                  <p className="text-yellow-600">Rating: {review.rating} / 5</p>
+                  <p className="text-yellow-600">
+                    Rating: {review.rating} / 5
+                  </p>
                   <p className="text-choco">{review.text}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-choco mb-6">Belum ada ulasan untuk produk ini.</p>
+            <p className="text-choco mb-6">
+              Belum ada ulasan untuk produk ini.
+            </p>
           )}
 
           {/* Form Tambah Review */}
@@ -167,11 +280,15 @@ export default function DetailProductPage() {
             )}
 
             <div>
-              <label className="block text-choco font-medium mb-1">Nama Anda</label>
+              <label className="block text-choco font-medium mb-1">
+                Nama Anda
+              </label>
               <input
                 type="text"
                 value={newReview.name}
-                onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
+                onChange={(e) =>
+                  setNewReview({ ...newReview, name: e.target.value })
+                }
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-softblue"
                 placeholder="Contoh: Dina"
               />
@@ -181,7 +298,12 @@ export default function DetailProductPage() {
               <label className="block text-choco font-medium mb-1">Rating</label>
               <select
                 value={newReview.rating}
-                onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                onChange={(e) =>
+                  setNewReview({
+                    ...newReview,
+                    rating: Number(e.target.value),
+                  })
+                }
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-softblue"
               >
                 {[5, 4, 3, 2, 1].map((rate) => (
@@ -193,11 +315,15 @@ export default function DetailProductPage() {
             </div>
 
             <div>
-              <label className="block text-choco font-medium mb-1">Komentar</label>
+              <label className="block text-choco font-medium mb-1">
+                Komentar
+              </label>
               <textarea
                 rows={4}
                 value={newReview.text}
-                onChange={(e) => setNewReview({ ...newReview, text: e.target.value })}
+                onChange={(e) =>
+                  setNewReview({ ...newReview, text: e.target.value })
+                }
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-softblue resize-none"
                 placeholder="Tulis pendapatmu tentang produk ini..."
               />
@@ -215,5 +341,5 @@ export default function DetailProductPage() {
         </div>
       </div>
     </>
-  )
+  );
 }
