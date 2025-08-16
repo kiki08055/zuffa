@@ -1,6 +1,7 @@
 {
   "build": {
-    "root": "team-2/apps/api",
+    "builder": "NIXPACKS",
+    "root": "apps/api",
     "buildCommand": "npm install && npm run build"
   },
   "deploy": {
