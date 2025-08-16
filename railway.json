@@ -1,0 +1,9 @@
+{
+  "build": {
+    "root": "team-2/apps/api",
+    "buildCommand": "npm install && npm run build"
+  },
+  "deploy": {
+    "startCommand": "npm run start"
+  }
+}
