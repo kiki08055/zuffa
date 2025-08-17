@@ -13,11 +13,14 @@ const FormProduct: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-
     const Role = Cookies.get("userRole");
-    if(Role !== 'ADMIN') {
-      router.push('/')
+
+    // Kalau bukan admin, langsung redirect & hentikan eksekusi
+    if (Role !== 'ADMIN') {
+      router.replace('/');  // pake replace biar ga bisa back ke sini
+      return;
     }
+
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/admin/product');
@@ -30,7 +33,7 @@ const FormProduct: React.FC = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [router]);
 
   const handleEdit = (id: number) => {
     router.push(`/admin/update?id=${id}`);
@@ -49,7 +52,6 @@ const FormProduct: React.FC = () => {
   const handleAdd = () => {
     router.push('/admin/publish');
   };
-  
 
   return (
     <div className="flex">
